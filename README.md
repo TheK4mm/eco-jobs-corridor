@@ -1,4 +1,4 @@
-# 🌿 Plataforma de Empleo — Corredor Ecológico (Villavicencio)
+# Plataforma de Empleo — Corredor Ecológico (Villavicencio)
 
 Aplicación web full‑stack que conecta a candidatos y empleadores del **Corredor
 Ecológico de Villavicencio – Meta**, permitiendo publicar ofertas, postularse,
@@ -8,7 +8,7 @@ Versión **2.0** — reescritura completa, profesional, segura y lista para prod
 
 ---
 
-## ✨ Características
+## Características
 
 - **Autenticación y roles** (candidato, empleador, admin) con JWT y contraseñas hasheadas.
 - **Ofertas de empleo**: CRUD completo, **búsqueda y filtros** (palabra clave, categoría, ubicación, modalidad, tipo de contrato) y **paginación**.
@@ -23,7 +23,7 @@ Versión **2.0** — reescritura completa, profesional, segura y lista para prod
 
 ---
 
-## 🧱 Stack tecnológico
+## Stack tecnológico
 
 | Capa | Tecnologías |
 |------|-------------|
@@ -36,7 +36,7 @@ Versión **2.0** — reescritura completa, profesional, segura y lista para prod
 
 ---
 
-## 📁 Estructura del proyecto
+## Estructura del proyecto
 
 ```
 employment-web-platform/
@@ -66,7 +66,7 @@ employment-web-platform/
 
 ---
 
-## ✅ Requisitos previos
+## Requisitos previos
 
 - **Node.js 18+** y npm
 - **MySQL o MariaDB** corriendo en `localhost:3306` (se recomienda **XAMPP** en Windows)
@@ -76,7 +76,7 @@ employment-web-platform/
 
 ---
 
-## 🚀 Instalación y configuración
+## Instalación y configuración
 
 ### 1) Clonar e instalar dependencias
 
@@ -155,7 +155,7 @@ Abre **http://localhost:5173**. La documentación de la API está en
 
 ---
 
-## 🔑 Credenciales de ejemplo (tras `db:seed`)
+## Credenciales de ejemplo (tras `db:seed`)
 
 | Rol | Correo | Contraseña |
 |-----|--------|------------|
@@ -165,7 +165,7 @@ Abre **http://localhost:5173**. La documentación de la API está en
 
 ---
 
-## 🧪 Pruebas
+## Pruebas
 
 ```bash
 # Backend — unitarias (no requieren BD) + integración (requieren MySQL)
@@ -189,7 +189,7 @@ npm run build       # compilación de producción
 
 ---
 
-## 🔌 Visión general de la API
+## Visión general de la API
 
 Base: `http://localhost:4000/api/v1` — documentación interactiva en `/api/docs`.
 
@@ -218,7 +218,7 @@ Detalle completo en [`docs/API.md`](docs/API.md).
 
 ---
 
-## 📚 Documentación adicional
+## Documentación adicional
 
 - [Arquitectura](docs/ARQUITECTURA.md) — capas, flujo de petición, SOLID y seguridad.
 - [Base de datos](docs/BASE_DE_DATOS.md) — modelo entidad‑relación y normalización.
@@ -226,7 +226,7 @@ Detalle completo en [`docs/API.md`](docs/API.md).
 
 ---
 
-## 🧩 Solución de problemas
+## Solución de problemas
 
 | Problema | Causa probable / solución |
 |----------|---------------------------|
@@ -236,5 +236,3 @@ Detalle completo en [`docs/API.md`](docs/API.md).
 | CORS bloqueado en el navegador | Ajusta `CORS_ORIGIN` con la URL del frontend. |
 
 ---
-
-_Proyecto académico para apoyar el empleo en el Corredor Ecológico de Villavicencio – Meta._
