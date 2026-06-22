@@ -19,7 +19,8 @@ Aplicación full‑stack desacoplada:
 ## Backend — arquitectura por capas (SOLID)
 
 Cada módulo de negocio (`auth`, `users`, `profiles`, `jobs`, `applications`,
-`notifications`, `categories`, `admin`) sigue la misma separación de responsabilidades:
+`notifications`, `categories`, `admin`, `audit`, `saved-jobs`, `alerts`, `email`,
+`messages`) sigue la misma separación de responsabilidades:
 
 ```
 routes  →  middleware (auth · authorize · validate)  →  controller  →  service  →  repository  →  MySQL
@@ -63,13 +64,34 @@ routes  →  middleware (auth · authorize · validate)  →  controller  →  s
 | Acceso no autorizado | Middleware `auth` + `authorize` (RBAC) + verificación de propiedad en servicios. |
 | Inyección SQL | Consultas parametrizadas en todos los repositorios. |
 | Cabeceras / CORS | `helmet` y CORS restringido por `CORS_ORIGIN`. |
-| Fuerza bruta | `express-rate-limit` global y reforzado en login/registro. |
+| Fuerza bruta | `express-rate-limit` global + reforzado en auth, y **bloqueo de cuenta** tras N intentos. |
+| Robo de sesión | Access token corto + **refresh token rotatorio** (hash en BD) con **detección de reuso** y revocación en logout. |
+| Pérdida/recuperación de acceso | Flujo de **recuperación de contraseña** de un solo uso (token hasheado, caduca). |
+| Trazabilidad y cumplimiento | **Auditoría** de acciones sensibles y **borrado lógico** (no se pierde el histórico). |
 | Configuración insegura | `JWT_SECRET` obligatorio (≥32 caracteres) validado al arrancar. |
+
+## Observabilidad
+
+- **Logging estructurado** con pino (`config/logger.ts`); el middleware `httpLogger`
+  (pino-http) asigna un `request-id` por petición (cabecera `x-request-id`) y expone
+  `req.log` para correlacionar trazas. JSON en producción, salida legible en desarrollo.
+- **Errores con código**: `HttpError` lleva un `code` estable y legible por máquina
+  (p. ej. `EMAIL_EN_USO`, `CUENTA_BLOQUEADA`) además del mensaje.
+- **Auditoría**: el módulo `audit` registra quién hizo qué y cuándo en operaciones
+  sensibles (cambios de rol/estado, borrados, cambios de estado de postulación).
 
 ## Frontend
 
 - **Componentes UI** reutilizables y accesibles (`components/ui`): foco visible, `aria-*`, labels.
-- **AuthProvider** mantiene la sesión; un interceptor de axios cierra sesión ante un 401.
+- **AuthProvider** mantiene la sesión; el interceptor de axios **refresca el token de
+  forma transparente** ante un 401 y solo cierra sesión si el refresco falla.
+- **ErrorBoundary** global evita la pantalla en blanco ante errores de render.
 - **TanStack Query** gestiona caché, estados de carga/error y revalidación.
 - **Rutas protegidas** (`ProtectedRoute`) y por rol (`RoleRoute`).
 - **Identidad visual verde** y diseño *mobile‑first* con Tailwind.
+
+## Despliegue y CI
+
+- **Docker**: imágenes multi-stage para backend (Node) y frontend (nginx que sirve la
+  SPA y proxya `/api`), orquestadas con `docker-compose` junto a MySQL.
+- **CI** (GitHub Actions): lint · typecheck · test · build por paquete en cada push/PR.
