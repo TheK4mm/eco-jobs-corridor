@@ -51,14 +51,41 @@ describe('API de la plataforma (integración)', () => {
       .post('/api/v1/auth/login')
       .send({ email: ADMIN_EMAIL, contrasena: ADMIN_PASSWORD });
     expect(res.status).toBe(200);
-    expect(res.body.token).toBeTypeOf('string');
+    expect(res.body.accessToken).toBeTypeOf('string');
+    expect(res.body.refreshToken).toBeTypeOf('string');
+  });
+
+  it('refresh rota el token y el anterior queda inutilizable (detección de reuso)', async (ctx) => {
+    if (!dbAvailable) return ctx.skip();
+    const login = await request(app!)
+      .post('/api/v1/auth/login')
+      .send({ email: ADMIN_EMAIL, contrasena: ADMIN_PASSWORD });
+    const oldRefresh = login.body.refreshToken as string;
+
+    const rotated = await request(app!)
+      .post('/api/v1/auth/refresh')
+      .send({ refreshToken: oldRefresh });
+    expect(rotated.status).toBe(200);
+    expect(rotated.body.accessToken).toBeTypeOf('string');
+    expect(rotated.body.refreshToken).not.toBe(oldRefresh);
+
+    // Reusar el refresh viejo (ya rotado) debe fallar.
+    const reused = await request(app!)
+      .post('/api/v1/auth/refresh')
+      .send({ refreshToken: oldRefresh });
+    expect(reused.status).toBe(401);
   });
 
   it('rechaza el registro con rol admin (sin escalada de privilegios)', async (ctx) => {
     if (!dbAvailable) return ctx.skip();
     const res = await request(app!)
       .post('/api/v1/auth/register')
-      .send({ nombre: 'Intruso', email: `hack_${Date.now()}@x.com`, contrasena: 'Clave123', rol: 'admin' });
+      .send({
+        nombre: 'Intruso',
+        email: `hack_${Date.now()}@x.com`,
+        contrasena: 'Clave123',
+        rol: 'admin',
+      });
     expect(res.status).toBe(400);
   });
 
@@ -81,7 +108,7 @@ describe('API de la plataforma (integración)', () => {
       .post('/api/v1/auth/login')
       .send({ email, contrasena: 'Clave123' });
     expect(login.status).toBe(200);
-    const token = login.body.token as string;
+    const token = login.body.accessToken as string;
 
     const ofertas = await request(app!).get('/api/v1/ofertas');
     const ofertaId = ofertas.body.data[0].id_oferta as number;

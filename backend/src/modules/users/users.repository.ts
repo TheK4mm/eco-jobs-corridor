@@ -8,12 +8,12 @@ const PUBLIC_FIELDS = `
   u.id_usuario, u.nombre, u.email, r.nombre AS rol, u.id_rol,
   u.activo, u.fecha_registro, u.fecha_actualizacion`;
 
-/** Usuario con hash de contraseña incluido (solo para login). */
+/** Usuario con hash de contraseña incluido (solo para login). Excluye borrados lógicos. */
 export async function findByEmailWithHash(email: string): Promise<Usuario | null> {
   const rows = await query<RowDataPacket[]>(
     `SELECT u.*, r.nombre AS rol
      FROM usuarios u JOIN roles r ON u.id_rol = r.id_rol
-     WHERE u.email = ?`,
+     WHERE u.email = ? AND u.deleted_at IS NULL`,
     [email],
   );
   return (rows[0] as Usuario) ?? null;
@@ -23,7 +23,7 @@ export async function findById(id: number): Promise<UsuarioPublico | null> {
   const rows = await query<RowDataPacket[]>(
     `SELECT ${PUBLIC_FIELDS}
      FROM usuarios u JOIN roles r ON u.id_rol = r.id_rol
-     WHERE u.id_usuario = ?`,
+     WHERE u.id_usuario = ? AND u.deleted_at IS NULL`,
     [id],
   );
   return (rows[0] as UsuarioPublico) ?? null;
@@ -98,8 +98,32 @@ export async function setActivo(id: number, activo: boolean): Promise<number> {
   return result.affectedRows;
 }
 
+/**
+ * Actualiza el estado de bloqueo por intentos fallidos.
+ * Con (0, null) limpia el bloqueo tras un login exitoso.
+ */
+export async function updateLockState(
+  id: number,
+  intentos_fallidos: number,
+  bloqueado_hasta: Date | null,
+): Promise<number> {
+  const result = await execute(
+    'UPDATE usuarios SET intentos_fallidos = ?, bloqueado_hasta = ? WHERE id_usuario = ?',
+    [intentos_fallidos, bloqueado_hasta, id],
+  );
+  return result.affectedRows;
+}
+
+/**
+ * Borrado LÓGICO: marca `deleted_at` y desactiva la cuenta. Conserva el
+ * histórico (ofertas, postulaciones, auditoría) en lugar de borrarlo en cascada.
+ * El email queda ocupado para impedir su reutilización/suplantación.
+ */
 export async function remove(id: number): Promise<number> {
-  const result = await execute('DELETE FROM usuarios WHERE id_usuario = ?', [id]);
+  const result = await execute(
+    'UPDATE usuarios SET deleted_at = CURRENT_TIMESTAMP, activo = 0 WHERE id_usuario = ? AND deleted_at IS NULL',
+    [id],
+  );
   return result.affectedRows;
 }
 
@@ -107,7 +131,7 @@ export async function list(
   pagination: PaginationParams,
   filters: { rol?: Rol; q?: string; activo?: boolean } = {},
 ): Promise<{ rows: UsuarioPublico[]; total: number }> {
-  const where: string[] = [];
+  const where: string[] = ['u.deleted_at IS NULL'];
   const params: unknown[] = [];
 
   if (filters.rol) {

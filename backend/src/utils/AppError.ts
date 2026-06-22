@@ -43,3 +43,8 @@ export const conflict = (
   message = 'El recurso ya existe o genera un conflicto',
   code?: string,
 ): HttpError => new HttpError(409, message, undefined, code);
+
+export const tooManyRequests = (
+  message = 'Demasiadas solicitudes. Intenta más tarde.',
+  code?: string,
+): HttpError => new HttpError(429, message, undefined, code);

@@ -19,5 +19,29 @@ export const loginSchema = z.object({
   contrasena: z.string().min(1, 'La contraseña es obligatoria'),
 });
 
+/** Contraseña con las mismas reglas de robustez que en el registro. */
+const contrasenaFuerte = z
+  .string()
+  .min(8, 'La contraseña debe tener al menos 8 caracteres')
+  .max(72, 'La contraseña no puede superar 72 caracteres')
+  .regex(/[A-Za-z]/, 'Debe incluir al menos una letra')
+  .regex(/\d/, 'Debe incluir al menos un número');
+
+export const refreshSchema = z.object({
+  refreshToken: z.string().min(1, 'El refresh token es obligatorio'),
+});
+
+export const logoutSchema = refreshSchema;
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().toLowerCase().email('Correo electrónico inválido'),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'El token es obligatorio'),
+  contrasena: contrasenaFuerte,
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

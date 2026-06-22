@@ -20,7 +20,12 @@ const envSchema = z.object({
   DB_NAME_TEST: z.string().optional(),
 
   JWT_SECRET: z.string().min(32, 'JWT_SECRET debe tener al menos 32 caracteres'),
-  JWT_EXPIRES_IN: z.string().default('3h'),
+  // Vigencia del access token (corto, porque hay refresh token con rotación).
+  JWT_EXPIRES_IN: z.string().default('15m'),
+  // Vigencia del refresh token, en días.
+  REFRESH_TOKEN_DAYS: z.coerce.number().int().positive().max(90).default(7),
+  // URL pública del frontend (para construir enlaces de recuperación, etc.).
+  APP_URL: z.string().url().default('http://localhost:5173'),
 
   ADMIN_NAME: z.string().default('Administrador'),
   ADMIN_EMAIL: z.string().email().default('admin@corredorempleo.co'),
@@ -62,7 +67,9 @@ export const config = {
   jwt: {
     secret: env.JWT_SECRET,
     expiresIn: env.JWT_EXPIRES_IN,
+    refreshTokenDays: env.REFRESH_TOKEN_DAYS,
   },
+  appUrl: env.APP_URL,
   admin: {
     name: env.ADMIN_NAME,
     email: env.ADMIN_EMAIL,

@@ -11,5 +11,6 @@ router.use(auth, authorize('admin'));
 
 router.get('/stats', controller.stats);
 router.get('/ofertas', validate({ query: listJobsSchema }), controller.listJobs);
+router.get('/auditoria', controller.listAudit);
 
 export default router;

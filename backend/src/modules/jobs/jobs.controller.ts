@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { parsePagination } from '../../utils/pagination';
 import * as jobsService from './jobs.service';
+import * as audit from '../audit/audit.service';
 import type { JobFilters } from './jobs.repository';
 
 type PublicFilters = Omit<JobFilters, 'estado' | 'id_empleador'>;
@@ -40,6 +41,14 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const remove = asyncHandler(async (req: Request, res: Response) => {
-  await jobsService.remove(req.user!, Number(req.params.id));
+  const id = Number(req.params.id);
+  await jobsService.remove(req.user!, id);
+  await audit.registrar({
+    id_actor: req.user!.id_usuario,
+    accion: 'oferta.eliminada',
+    entidad: 'oferta',
+    id_entidad: id,
+    ip: req.ip,
+  });
   res.json({ message: 'Oferta eliminada correctamente' });
 });

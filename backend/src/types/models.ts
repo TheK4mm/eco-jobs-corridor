@@ -13,8 +13,12 @@ export interface Usuario {
   id_rol: number;
   rol?: Rol; // proveniente del JOIN con la tabla roles
   activo: number | boolean;
+  // Control de bloqueo por intentos fallidos (no se serializan hacia la API).
+  intentos_fallidos?: number;
+  bloqueado_hasta?: Date | string | null;
   fecha_registro: Date | string;
   fecha_actualizacion: Date | string;
+  deleted_at?: Date | string | null;
 }
 
 export type UsuarioPublico = Omit<Usuario, 'contrasena_hash'>;

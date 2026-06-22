@@ -4,7 +4,14 @@ import * as authController from './auth.controller';
 import { validate } from '../../middleware/validate';
 import { auth } from '../../middleware/auth';
 import { RATE_LIMIT } from '../../constants/security';
-import { loginSchema, registerSchema } from './auth.validation';
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  logoutSchema,
+  refreshSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from './auth.validation';
 
 const router = Router();
 
@@ -18,6 +25,20 @@ const authLimiter = rateLimit({
 
 router.post('/register', authLimiter, validate({ body: registerSchema }), authController.register);
 router.post('/login', authLimiter, validate({ body: loginSchema }), authController.login);
+router.post('/refresh', validate({ body: refreshSchema }), authController.refresh);
+router.post('/logout', validate({ body: logoutSchema }), authController.logout);
+router.post(
+  '/forgot-password',
+  authLimiter,
+  validate({ body: forgotPasswordSchema }),
+  authController.forgotPassword,
+);
+router.post(
+  '/reset-password',
+  authLimiter,
+  validate({ body: resetPasswordSchema }),
+  authController.resetPassword,
+);
 router.get('/me', auth, authController.me);
 
 export default router;
