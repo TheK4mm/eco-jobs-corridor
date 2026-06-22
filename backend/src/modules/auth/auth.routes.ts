@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit';
 import * as authController from './auth.controller';
 import { validate } from '../../middleware/validate';
 import { auth } from '../../middleware/auth';
+import { config } from '../../config/env';
 import { RATE_LIMIT } from '../../constants/security';
 import {
   forgotPasswordSchema,
@@ -20,6 +21,7 @@ const authLimiter = rateLimit({
   ...RATE_LIMIT.auth,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: () => config.isTest,
   message: { message: 'Demasiados intentos. Intenta de nuevo en unos minutos.' },
 });
 

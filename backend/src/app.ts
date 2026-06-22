@@ -41,6 +41,7 @@ export function createApp(): Express {
       ...RATE_LIMIT.global,
       standardHeaders: true,
       legacyHeaders: false,
+      skip: () => config.isTest,
       message: { message: 'Demasiadas peticiones. Intenta más tarde.' },
     }),
   );
