@@ -59,6 +59,11 @@ export function LoginPage() {
             Ingresar
           </Button>
         </form>
+        <p className="mt-3 text-center text-sm">
+          <Link to="/recuperar" className="text-brand-700 hover:underline">
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </p>
         <p className="mt-4 text-center text-sm text-gray-600">
           ¿No tienes cuenta?{' '}
           <Link to="/registro" className="font-medium text-brand-700 hover:underline">
