@@ -16,6 +16,7 @@ import {
 } from '@/lib/format';
 import { useAuth } from '@/hooks/useAuth';
 import { apiErrorMessage } from '@/api/client';
+import { SaveJobButton } from '@/components/jobs/SaveJobButton';
 
 export function JobDetailPage() {
   const { id } = useParams();
@@ -61,7 +62,9 @@ export function JobDetailPage() {
     );
   }
 
-  const isOwner = Boolean(user && (user.id_usuario === oferta.id_empleador || user.rol === 'admin'));
+  const isOwner = Boolean(
+    user && (user.id_usuario === oferta.id_empleador || user.rol === 'admin'),
+  );
   const canApply = user?.rol === 'candidato';
 
   return (
@@ -120,6 +123,7 @@ export function JobDetailPage() {
             </Link>
           )}
           {canApply && !showForm && <Button onClick={() => setShowForm(true)}>Postularme</Button>}
+          <SaveJobButton ofertaId={oferta.id_oferta} />
           {!user && (
             <Link to="/login" state={{ from: { pathname: `/ofertas/${oferta.id_oferta}` } }}>
               <Button>Inicia sesión para postularte</Button>
