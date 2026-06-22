@@ -43,9 +43,9 @@ export function Navbar() {
         <Link to="/" className="flex items-center gap-2 text-brand-700">
           <Leaf className="h-7 w-7 shrink-0" aria-hidden="true" />
           <span className="font-bold leading-tight">
-            Empleo Corredor
+            Corredor Ecológico
             <span className="block text-xs font-normal text-gray-500">
-              Ecológico · Villavicencio
+              Empleos · Villavicencio
             </span>
           </span>
         </Link>

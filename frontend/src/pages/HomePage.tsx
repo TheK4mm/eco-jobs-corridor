@@ -56,12 +56,7 @@ export function HomePage() {
               <Button variant="secondary">Crear cuenta</Button>
             </Link>
             <Link to="/ofertas">
-              <Button
-                variant="outline"
-                className="border-white/40 bg-transparent text-white hover:bg-white/10"
-              >
-                Ver ofertas
-              </Button>
+              <Button variant="secondary">Ver ofertas</Button>
             </Link>
           </div>
         )}
