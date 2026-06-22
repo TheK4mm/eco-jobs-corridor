@@ -1,0 +1,38 @@
+{
+  "name": "corredor-empleo",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Plataforma de Empleo del Corredor Ecológico (Villavicencio). Monorepo de dos paquetes (backend + frontend). Este package.json raíz solo orquesta scripts y herramientas de desarrollo compartidas (husky, lint-staged, prettier); cada paquete sigue gestionando sus propias dependencias con su propio package-lock.json.",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c green,cyan \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend",
+    "start": "npm run start --prefix backend",
+    "typecheck": "npm run typecheck --prefix backend && npm run typecheck --prefix frontend",
+    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
+    "format": "prettier --write \"backend/src/**/*.ts\" \"frontend/src/**/*.{ts,tsx,css}\"",
+    "test": "npm run test --prefix backend && npm run test --prefix frontend",
+    "test:unit": "npm run test:unit --prefix backend",
+    "db:setup": "npm run db:setup --prefix backend",
+    "db:migrate": "npm run db:migrate --prefix backend",
+    "db:seed": "npm run db:seed --prefix backend",
+    "db:reset": "npm run db:reset --prefix backend",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "setup": "npm install && npm run install:all",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.4.2"
+  },
+  "lint-staged": {
+    "backend/**/*.ts": "prettier --write",
+    "frontend/**/*.{ts,tsx,css}": "prettier --write"
+  }
+}

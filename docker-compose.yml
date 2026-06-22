@@ -1,0 +1,62 @@
+# Orquestación local/producción simple: MySQL + backend (API) + frontend (nginx).
+# Variables sensibles se leen de un archivo .env junto a este compose
+# (ver .env.docker.example). Levanta todo con: docker compose up --build
+name: corredor-empleo
+
+services:
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpass}
+      MYSQL_DATABASE: ${DB_NAME:-corredor_empleo}
+    ports:
+      - '${DB_PORT_HOST:-3307}:3306'
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-p${DB_ROOT_PASSWORD:-rootpass}']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: ${DB_ROOT_PASSWORD:-rootpass}
+      DB_NAME: ${DB_NAME:-corredor_empleo}
+      JWT_SECRET: ${JWT_SECRET:?Define JWT_SECRET (>=32 chars) en tu .env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-3h}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:8080}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrador}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@corredorempleo.co}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin1234*}
+    # Aplica migraciones (idempotente) y luego arranca el servidor.
+    command: sh -c "node dist/db/migrate.js && node dist/server.js"
+    expose:
+      - '4000'
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Ruta relativa: nginx redirige /api/* al backend (ver nginx.conf).
+        VITE_API_URL: /api/v1
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - '${FRONTEND_PORT:-8080}:80'
+
+volumes:
+  db_data:
