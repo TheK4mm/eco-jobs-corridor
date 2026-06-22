@@ -207,7 +207,7 @@ Detalle completo en [`docs/API.md`](docs/API.md).
 
 ---
 
-## 🚢 Despliegue (resumen)
+## Despliegue (resumen)
 
 1. **Base de datos**: aprovisiona MySQL/MariaDB y configura las variables `DB_*`.
 2. **Backend**: `npm run build` y ejecuta `npm start` (sirve `dist/`). Define
