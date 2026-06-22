@@ -1,4 +1,9 @@
 import type { Rol } from './common';
+import type { Modalidad, TipoContrato, EstadoOferta, EstadoPostulacion } from '../constants/enums';
+
+// Re-exporta los enumerados del dominio desde su fuente única para no romper
+// los imports existentes (`import { Modalidad } from '../types/models'`).
+export type { Modalidad, TipoContrato, EstadoOferta, EstadoPostulacion };
 
 export interface Usuario {
   id_usuario: number;
@@ -42,15 +47,6 @@ export interface Categoria {
   nombre: string;
 }
 
-export type Modalidad = 'presencial' | 'remoto' | 'hibrido';
-export type TipoContrato =
-  | 'tiempo_completo'
-  | 'medio_tiempo'
-  | 'temporal'
-  | 'practica'
-  | 'freelance';
-export type EstadoOferta = 'activa' | 'cerrada' | 'borrador';
-
 export interface Oferta {
   id_oferta: number;
   id_empleador: number;
@@ -72,13 +68,6 @@ export interface Oferta {
   categoria?: string | null;
   total_postulaciones?: number;
 }
-
-export type EstadoPostulacion =
-  | 'enviada'
-  | 'en_revision'
-  | 'preseleccionado'
-  | 'rechazado'
-  | 'aceptado';
 
 export interface Postulacion {
   id_postulacion: number;

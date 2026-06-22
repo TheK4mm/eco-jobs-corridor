@@ -1,12 +1,13 @@
 import express, { type Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
 import { config } from './config/env';
 import { healthCheck } from './config/db';
 import { openapiSpec } from './docs/openapi';
+import { RATE_LIMIT } from './constants/security';
+import { httpLogger } from './middleware/httpLogger';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFound';
 import { asyncHandler } from './utils/asyncHandler';
@@ -31,13 +32,10 @@ export function createApp(): Express {
   app.use(cors({ origin: config.corsOrigins, credentials: true }));
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-  if (!config.isTest) {
-    app.use(morgan(config.isProd ? 'combined' : 'dev'));
-  }
+  app.use(httpLogger);
   app.use(
     rateLimit({
-      windowMs: 15 * 60 * 1000,
-      max: 300,
+      ...RATE_LIMIT.global,
       standardHeaders: true,
       legacyHeaders: false,
       message: { message: 'Demasiadas peticiones. Intenta más tarde.' },

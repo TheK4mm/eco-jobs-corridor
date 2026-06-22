@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ESTADOS_POSTULACION } from '../../constants/enums';
 
 export const createApplicationSchema = z.object({
   id_oferta: z.coerce.number().int().positive(),
@@ -6,7 +7,7 @@ export const createApplicationSchema = z.object({
 });
 
 export const updateApplicationStatusSchema = z.object({
-  estado: z.enum(['enviada', 'en_revision', 'preseleccionado', 'rechazado', 'aceptado']),
+  estado: z.enum(ESTADOS_POSTULACION),
 });
 
 export const listApplicationsSchema = z.object({

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ROLES_REGISTRO } from '../../constants/enums';
 
 export const registerSchema = z.object({
   nombre: z.string().trim().min(2, 'El nombre debe tener al menos 2 caracteres').max(120),
@@ -10,7 +11,7 @@ export const registerSchema = z.object({
     .regex(/[A-Za-z]/, 'Debe incluir al menos una letra')
     .regex(/\d/, 'Debe incluir al menos un número'),
   // Importante: el rol 'admin' NO se acepta por registro público (evita escalada de privilegios).
-  rol: z.enum(['candidato', 'empleador']).default('candidato'),
+  rol: z.enum(ROLES_REGISTRO).default('candidato'),
 });
 
 export const loginSchema = z.object({
