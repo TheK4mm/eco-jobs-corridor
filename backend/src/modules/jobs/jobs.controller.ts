@@ -3,6 +3,7 @@ import { asyncHandler } from '../../utils/asyncHandler';
 import { parsePagination } from '../../utils/pagination';
 import * as jobsService from './jobs.service';
 import * as audit from '../audit/audit.service';
+import * as alertsService from '../alerts/alerts.service';
 import type { JobFilters } from './jobs.repository';
 
 type PublicFilters = Omit<JobFilters, 'estado' | 'id_empleador'>;
@@ -32,6 +33,8 @@ export const getById = asyncHandler(async (req: Request, res: Response) => {
 
 export const create = asyncHandler(async (req: Request, res: Response) => {
   const oferta = await jobsService.create(req.user!, req.body);
+  // Notifica a candidatos con alertas que coincidan (best-effort).
+  if (oferta.estado === 'activa') void alertsService.notifyMatching(oferta);
   res.status(201).json({ message: 'Oferta creada exitosamente', oferta });
 });
 

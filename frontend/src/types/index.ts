@@ -66,6 +66,17 @@ export interface Categoria {
   nombre: string;
 }
 
+export interface Alerta {
+  id_alerta: number;
+  id_usuario: number;
+  palabra_clave: string | null;
+  id_categoria: number | null;
+  categoria: string | null;
+  modalidad: Modalidad | null;
+  activa: number | boolean;
+  fecha_creacion: string;
+}
+
 export interface Notificacion {
   id_notificacion: number;
   id_usuario: number;

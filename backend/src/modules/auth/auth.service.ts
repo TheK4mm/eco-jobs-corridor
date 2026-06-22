@@ -1,5 +1,6 @@
 import * as usersRepo from '../users/users.repository';
 import * as authRepo from './auth.repository';
+import * as mailer from '../email/email.service';
 import { comparePassword, hashPassword } from '../../utils/password';
 import { signToken } from '../../utils/jwt';
 import { generateOpaqueToken, hashToken } from '../../utils/tokens';
@@ -68,6 +69,7 @@ export async function register(input: RegisterInput): Promise<UsuarioPublico> {
 
   const user = await usersRepo.findById(id);
   if (!user) throw notFound('No se pudo recuperar el usuario creado');
+  void mailer.sendWelcome(user.email, user.nombre);
   return user;
 }
 
@@ -199,6 +201,7 @@ export async function forgotPassword(email: string): Promise<{ resetToken?: stri
   });
 
   const enlace = `${config.appUrl}/restablecer?token=${resetToken}`;
+  void mailer.sendPasswordReset(user.email, user.nombre, enlace);
   logger.info(
     { id_usuario: user.id_usuario, enlace },
     'Token de recuperación de contraseña generado',

@@ -28,6 +28,7 @@ export function Navbar() {
     { to: '/ofertas', label: 'Ofertas', show: true },
     { to: '/candidato/postulaciones', label: 'Mis postulaciones', show: user?.rol === 'candidato' },
     { to: '/candidato/guardados', label: 'Guardados', show: user?.rol === 'candidato' },
+    { to: '/candidato/alertas', label: 'Alertas', show: user?.rol === 'candidato' },
     { to: '/empleador/ofertas', label: 'Mis ofertas', show: user?.rol === 'empleador' },
     { to: '/admin', label: 'Panel admin', show: user?.rol === 'admin' },
   ].filter((l) => l.show);

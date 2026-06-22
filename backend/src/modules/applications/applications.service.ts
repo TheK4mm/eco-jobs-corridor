@@ -1,6 +1,8 @@
 import * as repo from './applications.repository';
 import * as jobsRepo from '../jobs/jobs.repository';
+import * as usersRepo from '../users/users.repository';
 import * as notificationsRepo from '../notifications/notifications.repository';
+import * as email from '../email/email.service';
 import { withTransaction } from '../../config/db';
 import { badRequest, conflict, forbidden, notFound } from '../../utils/AppError';
 import { buildPaginated } from '../../utils/pagination';
@@ -22,7 +24,8 @@ export async function apply(
 ): Promise<Postulacion> {
   const oferta = await jobsRepo.findById(ofertaId);
   if (!oferta) throw notFound('Oferta no encontrada');
-  if (oferta.estado !== 'activa') throw badRequest('La oferta no está disponible para postulaciones');
+  if (oferta.estado !== 'activa')
+    throw badRequest('La oferta no está disponible para postulaciones');
   if (oferta.id_empleador === candidato.id_usuario) {
     throw badRequest('No puedes postularte a tu propia oferta');
   }
@@ -48,6 +51,17 @@ export async function apply(
     );
     return newId;
   });
+
+  // Aviso por correo al empleador (best-effort, fuera de la transacción).
+  const empleador = await usersRepo.findById(oferta.id_empleador);
+  if (empleador) {
+    void email.sendNewApplication(
+      empleador.email,
+      empleador.nombre,
+      oferta.titulo,
+      `/empleador/ofertas/${ofertaId}/postulaciones`,
+    );
+  }
 
   return (await repo.findById(id)) as Postulacion;
 }
@@ -110,6 +124,17 @@ export async function updateStatus(
       conn,
     );
   });
+
+  // Aviso por correo al candidato (best-effort, fuera de la transacción).
+  const candidato = await usersRepo.findById(post.id_candidato);
+  if (candidato) {
+    void email.sendStatusChange(
+      candidato.email,
+      candidato.nombre,
+      post.titulo ?? '',
+      ESTADO_LABEL[estado],
+    );
+  }
 
   return (await repo.findById(id)) as Postulacion;
 }

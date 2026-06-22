@@ -21,6 +21,7 @@ import notificationsRoutes from './modules/notifications/notifications.routes';
 import categoriesRoutes from './modules/categories/categories.routes';
 import adminRoutes from './modules/admin/admin.routes';
 import savedJobsRoutes from './modules/saved-jobs/saved-jobs.routes';
+import alertsRoutes from './modules/alerts/alerts.routes';
 
 const API = '/api/v1';
 
@@ -65,6 +66,7 @@ export function createApp(): Express {
   app.use(`${API}/ofertas`, jobsRoutes);
   app.use(`${API}/postulaciones`, applicationsRoutes);
   app.use(`${API}/guardados`, savedJobsRoutes);
+  app.use(`${API}/alertas`, alertsRoutes);
   app.use(`${API}/notificaciones`, notificationsRoutes);
   app.use(`${API}/categorias`, categoriesRoutes);
   app.use(`${API}/admin`, adminRoutes);

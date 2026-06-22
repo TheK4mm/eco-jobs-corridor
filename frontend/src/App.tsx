@@ -14,6 +14,7 @@ import { NotificationsPage } from '@/pages/NotificationsPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { MyApplicationsPage } from '@/pages/candidate/MyApplicationsPage';
 import { SavedJobsPage } from '@/pages/candidate/SavedJobsPage';
+import { AlertsPage } from '@/pages/candidate/AlertsPage';
 import { MyJobsPage } from '@/pages/employer/MyJobsPage';
 import { JobFormPage } from '@/pages/employer/JobFormPage';
 import { JobApplicantsPage } from '@/pages/employer/JobApplicantsPage';
@@ -43,6 +44,7 @@ export default function App() {
           <Route element={<RoleRoute roles={['candidato', 'admin']} />}>
             <Route path="/candidato/postulaciones" element={<MyApplicationsPage />} />
             <Route path="/candidato/guardados" element={<SavedJobsPage />} />
+            <Route path="/candidato/alertas" element={<AlertsPage />} />
           </Route>
 
           <Route element={<RoleRoute roles={['empleador', 'admin']} />}>

@@ -27,6 +27,15 @@ const envSchema = z.object({
   // URL pública del frontend (para construir enlaces de recuperación, etc.).
   APP_URL: z.string().url().default('http://localhost:5173'),
 
+  // SMTP para correo transaccional. Si SMTP_HOST está vacío, en desarrollo los
+  // correos se registran en el log (no se envían) y en producción se omiten.
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().positive().default(587),
+  SMTP_SECURE: z.coerce.boolean().default(false),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  MAIL_FROM: z.string().default('Corredor Empleo <no-reply@corredorempleo.co>'),
+
   ADMIN_NAME: z.string().default('Administrador'),
   ADMIN_EMAIL: z.string().email().default('admin@corredorempleo.co'),
   ADMIN_PASSWORD: z.string().min(8).default('Admin1234*'),
@@ -70,6 +79,14 @@ export const config = {
     refreshTokenDays: env.REFRESH_TOKEN_DAYS,
   },
   appUrl: env.APP_URL,
+  smtp: {
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    secure: env.SMTP_SECURE,
+    user: env.SMTP_USER,
+    pass: env.SMTP_PASS,
+    from: env.MAIL_FROM,
+  },
   admin: {
     name: env.ADMIN_NAME,
     email: env.ADMIN_EMAIL,
