@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as usersRepo from '../../src/modules/users/users.repository';
+import * as authRepo from '../../src/modules/auth/auth.repository';
 import * as authService from '../../src/modules/auth/auth.service';
 import { hashPassword } from '../../src/utils/password';
 import type { UsuarioPublico } from '../../src/types/models';
 
 vi.mock('../../src/modules/users/users.repository');
+vi.mock('../../src/modules/auth/auth.repository');
 
 const fakeUser: UsuarioPublico = {
   id_usuario: 1,
@@ -48,17 +50,48 @@ describe('auth.service', () => {
     ).rejects.toMatchObject({ statusCode: 409 });
   });
 
-  it('login devuelve token con credenciales válidas', async () => {
+  it('login devuelve access + refresh token con credenciales válidas', async () => {
     const hash = await hashPassword('Clave123');
     vi.mocked(usersRepo.findByEmailWithHash).mockResolvedValue({
       ...fakeUser,
       contrasena_hash: hash,
     });
     vi.mocked(usersRepo.findById).mockResolvedValue(fakeUser);
+    vi.mocked(authRepo.createSession).mockResolvedValue(1);
 
     const result = await authService.login({ email: 'laura@example.com', contrasena: 'Clave123' });
-    expect(result.token).toBeTypeOf('string');
+    expect(result.accessToken).toBeTypeOf('string');
+    expect(result.refreshToken).toBeTypeOf('string');
     expect(result.user.email).toBe('laura@example.com');
+    expect(authRepo.createSession).toHaveBeenCalledOnce();
+  });
+
+  it('login bloquea la cuenta tras varios intentos fallidos', async () => {
+    const hash = await hashPassword('Clave123');
+    vi.mocked(usersRepo.findByEmailWithHash).mockResolvedValue({
+      ...fakeUser,
+      contrasena_hash: hash,
+      intentos_fallidos: 4,
+    });
+
+    await expect(
+      authService.login({ email: 'laura@example.com', contrasena: 'incorrecta' }),
+    ).rejects.toMatchObject({ statusCode: 401 });
+    // Al 5º intento fallido se registra el bloqueo (intentos_fallidos = 5).
+    expect(usersRepo.updateLockState).toHaveBeenCalledWith(1, 5, expect.any(Date));
+  });
+
+  it('login responde 429 si la cuenta está bloqueada', async () => {
+    const hash = await hashPassword('Clave123');
+    vi.mocked(usersRepo.findByEmailWithHash).mockResolvedValue({
+      ...fakeUser,
+      contrasena_hash: hash,
+      bloqueado_hasta: new Date(Date.now() + 60_000),
+    });
+
+    await expect(
+      authService.login({ email: 'laura@example.com', contrasena: 'Clave123' }),
+    ).rejects.toMatchObject({ statusCode: 429 });
   });
 
   it('login lanza 401 con contraseña incorrecta', async () => {

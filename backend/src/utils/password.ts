@@ -1,9 +1,8 @@
 import bcrypt from 'bcryptjs';
-
-const SALT_ROUNDS = 10;
+import { config } from '../config/env';
 
 export function hashPassword(plain: string): Promise<string> {
-  return bcrypt.hash(plain, SALT_ROUNDS);
+  return bcrypt.hash(plain, config.bcryptSaltRounds);
 }
 
 export function comparePassword(plain: string, hash: string): Promise<boolean> {

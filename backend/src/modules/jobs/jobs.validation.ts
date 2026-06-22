@@ -1,14 +1,9 @@
 import { z } from 'zod';
+import { MODALIDADES, TIPOS_CONTRATO, ESTADOS_OFERTA } from '../../constants/enums';
 
-const modalidad = z.enum(['presencial', 'remoto', 'hibrido']);
-const tipoContrato = z.enum([
-  'tiempo_completo',
-  'medio_tiempo',
-  'temporal',
-  'practica',
-  'freelance',
-]);
-const estado = z.enum(['activa', 'cerrada', 'borrador']);
+const modalidad = z.enum(MODALIDADES);
+const tipoContrato = z.enum(TIPOS_CONTRATO);
+const estado = z.enum(ESTADOS_OFERTA);
 const fechaISO = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Usa el formato YYYY-MM-DD');
 
 export const createJobSchema = z
@@ -54,6 +49,7 @@ export const listJobsSchema = z.object({
   limit: z.coerce.number().int().positive().max(100).optional(),
   q: z.string().trim().max(120).optional(),
   id_categoria: z.coerce.number().int().positive().optional(),
+  id_empleador: z.coerce.number().int().positive().optional(),
   ubicacion: z.string().trim().max(120).optional(),
   modalidad: modalidad.optional(),
   tipo_contrato: tipoContrato.optional(),

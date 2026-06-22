@@ -16,6 +16,7 @@ import {
 } from '@/lib/format';
 import { useAuth } from '@/hooks/useAuth';
 import { apiErrorMessage } from '@/api/client';
+import { SaveJobButton } from '@/components/jobs/SaveJobButton';
 
 export function JobDetailPage() {
   const { id } = useParams();
@@ -61,7 +62,9 @@ export function JobDetailPage() {
     );
   }
 
-  const isOwner = Boolean(user && (user.id_usuario === oferta.id_empleador || user.rol === 'admin'));
+  const isOwner = Boolean(
+    user && (user.id_usuario === oferta.id_empleador || user.rol === 'admin'),
+  );
   const canApply = user?.rol === 'candidato';
 
   return (
@@ -77,7 +80,12 @@ export function JobDetailPage() {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-2xl">{oferta.titulo}</h1>
-            <p className="mt-1 text-gray-500">{oferta.empresa ?? oferta.empleador}</p>
+            <Link
+              to={`/empresas/${oferta.id_empleador}`}
+              className="mt-1 inline-block text-gray-500 hover:text-brand-700 hover:underline"
+            >
+              {oferta.empresa ?? oferta.empleador}
+            </Link>
           </div>
           <Badge className={ESTADO_OFERTA_COLOR[oferta.estado]}>
             {ESTADO_OFERTA_LABEL[oferta.estado]}
@@ -120,6 +128,7 @@ export function JobDetailPage() {
             </Link>
           )}
           {canApply && !showForm && <Button onClick={() => setShowForm(true)}>Postularme</Button>}
+          <SaveJobButton ofertaId={oferta.id_oferta} />
           {!user && (
             <Link to="/login" state={{ from: { pathname: `/ofertas/${oferta.id_oferta}` } }}>
               <Button>Inicia sesión para postularte</Button>

@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { ArrowLeft } from 'lucide-react';
 import { getJob, listJobApplications } from '@/api/jobs.api';
 import { updateApplicationStatus } from '@/api/applications.api';
-import { Card, EmptyState, PageLoader, Select } from '@/components/ui';
+import { Button, Card, EmptyState, PageLoader, Select } from '@/components/ui';
 import { StatusBadge } from '@/components/applications/StatusBadge';
 import { ESTADO_POSTULACION_LABEL, formatDate } from '@/lib/format';
 import { apiErrorMessage } from '@/api/client';
@@ -65,6 +65,11 @@ export function JobApplicantsPage() {
               </div>
               <div className="flex items-center gap-3">
                 <StatusBadge estado={p.estado} />
+                <Link to={`/mensajes/${p.id_postulacion}`}>
+                  <Button variant="outline" size="sm">
+                    Mensajes
+                  </Button>
+                </Link>
                 <Select
                   value={p.estado}
                   aria-label={`Cambiar estado de ${p.candidato}`}

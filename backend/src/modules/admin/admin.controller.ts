@@ -3,6 +3,7 @@ import { asyncHandler } from '../../utils/asyncHandler';
 import { parsePagination } from '../../utils/pagination';
 import * as adminService from './admin.service';
 import * as jobsService from '../jobs/jobs.service';
+import * as audit from '../audit/audit.service';
 import type { JobFilters } from '../jobs/jobs.repository';
 
 export const stats = asyncHandler(async (_req: Request, res: Response) => {
@@ -19,4 +20,12 @@ export const listJobs = asyncHandler(async (req: Request, res: Response) => {
     tipo_contrato: req.query.tipo_contrato as JobFilters['tipo_contrato'],
   };
   res.json(await jobsService.listAll(parsePagination(req.query), filters));
+});
+
+export const listAudit = asyncHandler(async (req: Request, res: Response) => {
+  const filters = {
+    entidad: typeof req.query.entidad === 'string' ? req.query.entidad : undefined,
+    accion: typeof req.query.accion === 'string' ? req.query.accion : undefined,
+  };
+  res.json(await audit.listar(parsePagination(req.query), filters));
 });

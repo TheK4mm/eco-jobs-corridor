@@ -3,8 +3,12 @@ node_modules/
 
 # Environment / secrets
 .env
-.env.*            # .env.local, .env.test, etc.
+.env.*
 *.local
+# ...pero los archivos de ejemplo SÍ se versionan
+!.env.example
+!.env.production.example
+!.env.docker.example
 
 # Logs
 npm-debug.log*
@@ -41,7 +45,11 @@ nyc_output/
 *.sqlite
 *.sqlite3
 *.db
-*.sql  # si no quieres subir dumps; comentar si sí los vas a versionar
+# Volcados/backups locales de BD. OJO: las migraciones de
+# backend/src/db SÍ se versionan (son la fuente de verdad del esquema),
+# por eso NO se ignora *.sql de forma global.
+/backups/
+*.dump.sql
 
 # Keys / certificados
 *.pem

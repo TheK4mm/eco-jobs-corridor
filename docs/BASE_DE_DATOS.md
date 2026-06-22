@@ -94,7 +94,18 @@ erDiagram
 | `ofertas` | Ofertas laborales. ENUM de modalidad, contrato y estado. | N:1 → `usuarios`, `categorias` |
 | `postulaciones` | Postulaciones con estado. **Única** `(id_oferta, id_candidato)`. | N:1 → `ofertas`, `usuarios` |
 | `notificaciones` | Avisos in‑app por usuario. | N:1 → `usuarios` (CASCADE) |
+| `tokens_sesion` | Refresh tokens (hash SHA‑256) con rotación y detección de reuso. | N:1 → `usuarios` (CASCADE) |
+| `tokens_recuperacion` | Tokens de recuperación de contraseña (hash, un solo uso). | N:1 → `usuarios` (CASCADE) |
+| `auditoria` | Registro de acciones sensibles (actor, acción, entidad, detalle JSON). | N:1 → `usuarios` (SET NULL) |
+| `empleos_guardados` | Favoritos: relación N:M candidato ↔ oferta. | PK compuesta (CASCADE) |
+| `alertas_empleo` | Criterios de alerta (palabra clave/categoría/modalidad) por candidato. | N:1 → `usuarios`, `categorias` |
+| `mensajes` | Mensajería dentro de una postulación. | N:1 → `postulaciones`, `usuarios` |
 | `schema_migrations` | Control de versiones de migraciones aplicadas. | — |
+
+> **Borrado lógico (v3)**: `usuarios` y `ofertas` añaden `deleted_at`; las consultas
+> filtran `deleted_at IS NULL` y el borrado marca la columna en lugar de eliminar,
+> preservando el histórico (postulaciones, auditoría). `usuarios` también añade
+> `intentos_fallidos` y `bloqueado_hasta` para el bloqueo por fuerza bruta.
 
 ## Decisiones de diseño
 
@@ -120,6 +131,9 @@ pendientes (orden alfabético):
 
 - `001_initial_schema.sql` — estructura (tablas, índices, claves foráneas).
 - `002_datos_iniciales.sql` — catálogos base (roles, categorías, habilidades).
+- `003_seguridad.sql` — refresh tokens, recuperación, auditoría, borrado lógico y bloqueo.
+- `004_empleos_guardados_y_alertas.sql` — favoritos y alertas de empleo.
+- `005_mensajeria.sql` — mensajes ligados a una postulación.
 
 El `seed.ts` añade el administrador inicial y datos de demostración (empleador,
 candidato y ofertas).

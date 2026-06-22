@@ -22,7 +22,8 @@ export interface JobFilters {
 }
 
 function buildWhere(filters: JobFilters): { sql: string; params: unknown[] } {
-  const where: string[] = [];
+  // Las ofertas con borrado lógico nunca se listan.
+  const where: string[] = ['o.deleted_at IS NULL'];
   const params: unknown[] = [];
 
   if (filters.q) {
@@ -83,14 +84,17 @@ export async function list(
 }
 
 export async function findById(id: number): Promise<Oferta | null> {
-  const rows = await query<RowDataPacket[]>(`${SELECT_BASE} WHERE o.id_oferta = ?`, [id]);
+  const rows = await query<RowDataPacket[]>(
+    `${SELECT_BASE} WHERE o.id_oferta = ? AND o.deleted_at IS NULL`,
+    [id],
+  );
   return (rows[0] as Oferta) ?? null;
 }
 
 /** Devuelve solo el id del empleador dueño (para verificación de permisos). */
 export async function findOwnerId(id: number): Promise<number | null> {
   const rows = await query<RowDataPacket[]>(
-    'SELECT id_empleador FROM ofertas WHERE id_oferta = ?',
+    'SELECT id_empleador FROM ofertas WHERE id_oferta = ? AND deleted_at IS NULL',
     [id],
   );
   return rows.length ? Number(rows[0].id_empleador) : null;
@@ -175,7 +179,14 @@ export async function update(id: number, fields: UpdateJobFields): Promise<numbe
   return result.affectedRows;
 }
 
+/**
+ * Borrado LÓGICO: conserva la oferta y sus postulaciones (histórico para
+ * candidatos y auditoría), pero deja de listarse y de ser accesible.
+ */
 export async function remove(id: number): Promise<number> {
-  const result = await execute('DELETE FROM ofertas WHERE id_oferta = ?', [id]);
+  const result = await execute(
+    'UPDATE ofertas SET deleted_at = CURRENT_TIMESTAMP WHERE id_oferta = ? AND deleted_at IS NULL',
+    [id],
+  );
   return result.affectedRows;
 }

@@ -27,6 +27,8 @@ export function Navbar() {
   const links = [
     { to: '/ofertas', label: 'Ofertas', show: true },
     { to: '/candidato/postulaciones', label: 'Mis postulaciones', show: user?.rol === 'candidato' },
+    { to: '/candidato/guardados', label: 'Guardados', show: user?.rol === 'candidato' },
+    { to: '/candidato/alertas', label: 'Alertas', show: user?.rol === 'candidato' },
     { to: '/empleador/ofertas', label: 'Mis ofertas', show: user?.rol === 'empleador' },
     { to: '/admin', label: 'Panel admin', show: user?.rol === 'admin' },
   ].filter((l) => l.show);
@@ -44,9 +46,7 @@ export function Navbar() {
           <Leaf className="h-7 w-7 shrink-0" aria-hidden="true" />
           <span className="font-bold leading-tight">
             Corredor Ecológico
-            <span className="block text-xs font-normal text-gray-500">
-              Empleos · Villavicencio
-            </span>
+            <span className="block text-xs font-normal text-gray-500">Empleos · Villavicencio</span>
           </span>
         </Link>
 
@@ -137,7 +137,11 @@ export function Navbar() {
               </>
             ) : (
               <>
-                <Link to="/login" onClick={() => setOpen(false)} className={navLinkClass({ isActive: false })}>
+                <Link
+                  to="/login"
+                  onClick={() => setOpen(false)}
+                  className={navLinkClass({ isActive: false })}
+                >
                   Ingresar
                 </Link>
                 <Link

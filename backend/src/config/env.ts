@@ -9,6 +9,8 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(4000),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+  BCRYPT_SALT_ROUNDS: z.coerce.number().int().min(8).max(15).default(10),
 
   DB_HOST: z.string().min(1, 'DB_HOST es obligatorio'),
   DB_PORT: z.coerce.number().int().positive().default(3306),
@@ -18,7 +20,21 @@ const envSchema = z.object({
   DB_NAME_TEST: z.string().optional(),
 
   JWT_SECRET: z.string().min(32, 'JWT_SECRET debe tener al menos 32 caracteres'),
-  JWT_EXPIRES_IN: z.string().default('3h'),
+  // Vigencia del access token (corto, porque hay refresh token con rotación).
+  JWT_EXPIRES_IN: z.string().default('15m'),
+  // Vigencia del refresh token, en días.
+  REFRESH_TOKEN_DAYS: z.coerce.number().int().positive().max(90).default(7),
+  // URL pública del frontend (para construir enlaces de recuperación, etc.).
+  APP_URL: z.string().url().default('http://localhost:5173'),
+
+  // SMTP para correo transaccional. Si SMTP_HOST está vacío, en desarrollo los
+  // correos se registran en el log (no se envían) y en producción se omiten.
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().positive().default(587),
+  SMTP_SECURE: z.coerce.boolean().default(false),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  MAIL_FROM: z.string().default('Corredor Empleo <no-reply@corredorempleo.co>'),
 
   ADMIN_NAME: z.string().default('Administrador'),
   ADMIN_EMAIL: z.string().email().default('admin@corredorempleo.co'),
@@ -45,6 +61,8 @@ export const config = {
   isTest: env.NODE_ENV === 'test',
   isDev: env.NODE_ENV === 'development',
   port: env.PORT,
+  logLevel: env.LOG_LEVEL,
+  bcryptSaltRounds: env.BCRYPT_SALT_ROUNDS,
   corsOrigins: env.CORS_ORIGIN.split(',')
     .map((origin) => origin.trim())
     .filter(Boolean),
@@ -58,6 +76,16 @@ export const config = {
   jwt: {
     secret: env.JWT_SECRET,
     expiresIn: env.JWT_EXPIRES_IN,
+    refreshTokenDays: env.REFRESH_TOKEN_DAYS,
+  },
+  appUrl: env.APP_URL,
+  smtp: {
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    secure: env.SMTP_SECURE,
+    user: env.SMTP_USER,
+    pass: env.SMTP_PASS,
+    from: env.MAIL_FROM,
   },
   admin: {
     name: env.ADMIN_NAME,

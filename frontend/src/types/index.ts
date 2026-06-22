@@ -66,6 +66,17 @@ export interface Categoria {
   nombre: string;
 }
 
+export interface Alerta {
+  id_alerta: number;
+  id_usuario: number;
+  palabra_clave: string | null;
+  id_categoria: number | null;
+  categoria: string | null;
+  modalidad: Modalidad | null;
+  activa: number | boolean;
+  fecha_creacion: string;
+}
+
 export interface Notificacion {
   id_notificacion: number;
   id_usuario: number;
@@ -98,6 +109,27 @@ export interface PerfilEmpleador {
   ubicacion: string | null;
   telefono: string | null;
   logo_url: string | null;
+}
+
+export interface Mensaje {
+  id_mensaje: number;
+  id_postulacion: number;
+  id_remitente: number;
+  remitente: string;
+  cuerpo: string;
+  leido: number | boolean;
+  fecha_envio: string;
+}
+
+export interface Conversacion {
+  postulacion: {
+    id_postulacion: number;
+    titulo?: string;
+    empresa?: string | null;
+    candidato?: string;
+    estado: EstadoPostulacion;
+  };
+  mensajes: Mensaje[];
 }
 
 export interface Paginated<T> {

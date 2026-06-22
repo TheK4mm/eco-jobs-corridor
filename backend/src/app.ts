@@ -1,12 +1,13 @@
 import express, { type Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
 import { config } from './config/env';
 import { healthCheck } from './config/db';
 import { openapiSpec } from './docs/openapi';
+import { RATE_LIMIT } from './constants/security';
+import { httpLogger } from './middleware/httpLogger';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFound';
 import { asyncHandler } from './utils/asyncHandler';
@@ -19,6 +20,9 @@ import applicationsRoutes from './modules/applications/applications.routes';
 import notificationsRoutes from './modules/notifications/notifications.routes';
 import categoriesRoutes from './modules/categories/categories.routes';
 import adminRoutes from './modules/admin/admin.routes';
+import savedJobsRoutes from './modules/saved-jobs/saved-jobs.routes';
+import alertsRoutes from './modules/alerts/alerts.routes';
+import messagesRoutes from './modules/messages/messages.routes';
 
 const API = '/api/v1';
 
@@ -31,15 +35,13 @@ export function createApp(): Express {
   app.use(cors({ origin: config.corsOrigins, credentials: true }));
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
-  if (!config.isTest) {
-    app.use(morgan(config.isProd ? 'combined' : 'dev'));
-  }
+  app.use(httpLogger);
   app.use(
     rateLimit({
-      windowMs: 15 * 60 * 1000,
-      max: 300,
+      ...RATE_LIMIT.global,
       standardHeaders: true,
       legacyHeaders: false,
+      skip: () => config.isTest,
       message: { message: 'Demasiadas peticiones. Intenta más tarde.' },
     }),
   );
@@ -65,6 +67,9 @@ export function createApp(): Express {
   app.use(`${API}/perfiles`, profilesRoutes);
   app.use(`${API}/ofertas`, jobsRoutes);
   app.use(`${API}/postulaciones`, applicationsRoutes);
+  app.use(`${API}/guardados`, savedJobsRoutes);
+  app.use(`${API}/alertas`, alertsRoutes);
+  app.use(`${API}/mensajes`, messagesRoutes);
   app.use(`${API}/notificaciones`, notificationsRoutes);
   app.use(`${API}/categorias`, categoriesRoutes);
   app.use(`${API}/admin`, adminRoutes);

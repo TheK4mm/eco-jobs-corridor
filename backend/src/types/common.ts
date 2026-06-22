@@ -1,4 +1,6 @@
-export type Rol = 'admin' | 'empleador' | 'candidato';
+// El tipo Rol vive en la fuente única de enumerados.
+export type { Rol } from '../constants/enums';
+import type { Rol } from '../constants/enums';
 
 /** Carga útil que viaja dentro del JWT. */
 export interface AuthPayload {

@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { parsePagination } from '../../utils/pagination';
 import * as service from './applications.service';
+import * as audit from '../audit/audit.service';
 
 export const apply = asyncHandler(async (req: Request, res: Response) => {
   const postulacion = await service.apply(req.user!, req.body.id_oferta, req.body.mensaje);
@@ -17,7 +18,16 @@ export const getById = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const updateStatus = asyncHandler(async (req: Request, res: Response) => {
-  const postulacion = await service.updateStatus(req.user!, Number(req.params.id), req.body.estado);
+  const id = Number(req.params.id);
+  const postulacion = await service.updateStatus(req.user!, id, req.body.estado);
+  await audit.registrar({
+    id_actor: req.user!.id_usuario,
+    accion: 'postulacion.cambio_estado',
+    entidad: 'postulacion',
+    id_entidad: id,
+    detalle: { estado: req.body.estado },
+    ip: req.ip,
+  });
   res.json({ message: 'Estado de la postulación actualizado', postulacion });
 });
 

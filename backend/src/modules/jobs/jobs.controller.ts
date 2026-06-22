@@ -2,14 +2,17 @@ import type { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler';
 import { parsePagination } from '../../utils/pagination';
 import * as jobsService from './jobs.service';
+import * as audit from '../audit/audit.service';
+import * as alertsService from '../alerts/alerts.service';
 import type { JobFilters } from './jobs.repository';
 
-type PublicFilters = Omit<JobFilters, 'estado' | 'id_empleador'>;
+type PublicFilters = Omit<JobFilters, 'estado'>;
 
 function parseFilters(query: Request['query']): PublicFilters {
   return {
     q: typeof query.q === 'string' ? query.q : undefined,
     id_categoria: query.id_categoria ? Number(query.id_categoria) : undefined,
+    id_empleador: query.id_empleador ? Number(query.id_empleador) : undefined,
     ubicacion: typeof query.ubicacion === 'string' ? query.ubicacion : undefined,
     modalidad: query.modalidad as JobFilters['modalidad'],
     tipo_contrato: query.tipo_contrato as JobFilters['tipo_contrato'],
@@ -31,6 +34,8 @@ export const getById = asyncHandler(async (req: Request, res: Response) => {
 
 export const create = asyncHandler(async (req: Request, res: Response) => {
   const oferta = await jobsService.create(req.user!, req.body);
+  // Notifica a candidatos con alertas que coincidan (best-effort).
+  if (oferta.estado === 'activa') void alertsService.notifyMatching(oferta);
   res.status(201).json({ message: 'Oferta creada exitosamente', oferta });
 });
 
@@ -40,6 +45,14 @@ export const update = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const remove = asyncHandler(async (req: Request, res: Response) => {
-  await jobsService.remove(req.user!, Number(req.params.id));
+  const id = Number(req.params.id);
+  await jobsService.remove(req.user!, id);
+  await audit.registrar({
+    id_actor: req.user!.id_usuario,
+    accion: 'oferta.eliminada',
+    entidad: 'oferta',
+    id_entidad: id,
+    ip: req.ip,
+  });
   res.json({ message: 'Oferta eliminada correctamente' });
 });

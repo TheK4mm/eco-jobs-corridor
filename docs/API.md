@@ -4,17 +4,27 @@
 - **Documentación interactiva**: `http://localhost:4000/api/docs` (Swagger UI)
 - **Autenticación**: JWT en cabecera `Authorization: Bearer <token>`
 - **Respuestas paginadas**: `{ "data": [...], "pagination": { page, limit, total, totalPages } }`
-- **Errores**: `{ "message": "...", "errors"?: { campo: [..] } }` con código HTTP adecuado
-  (`400` validación, `401` no autenticado, `403` sin permiso, `404` no encontrado,
-  `409` conflicto, `503` BD no disponible).
+- **Errores**: `{ "message": "...", "code"?: "...", "errors"?: { campo: [..] } }` con código
+  HTTP adecuado (`400` validación, `401` no autenticado, `403` sin permiso, `404` no
+  encontrado, `409` conflicto, `429` bloqueo/límite, `503` BD no disponible). `code` es un
+  identificador estable y legible por máquina (p. ej. `EMAIL_EN_USO`, `CUENTA_BLOQUEADA`).
+- **Request-id**: cada respuesta incluye la cabecera `x-request-id` para trazabilidad.
 
 ## Auth
 
 | Método | Ruta | Acceso | Cuerpo / Notas |
 |--------|------|--------|----------------|
 | POST | `/auth/register` | Público | `{ nombre, email, contrasena, rol? }` — `rol` ∈ {candidato, empleador} |
-| POST | `/auth/login` | Público | `{ email, contrasena }` → `{ token, user }` |
+| POST | `/auth/login` | Público | `{ email, contrasena }` → `{ accessToken, refreshToken, user }` |
+| POST | `/auth/refresh` | Público | `{ refreshToken }` → `{ accessToken, refreshToken }` (rotación) |
+| POST | `/auth/logout` | Público | `{ refreshToken }` — revoca el refresh token |
+| POST | `/auth/forgot-password` | Público | `{ email }` — respuesta neutra; envía enlace por correo |
+| POST | `/auth/reset-password` | Público | `{ token, contrasena }` — restablece y revoca sesiones |
 | GET | `/auth/me` | Autenticado | Devuelve el usuario actual |
+
+> El access token es de corta duración; el cliente usa `/auth/refresh` (con rotación y
+> detección de reuso) para renovarlo. Tras 5 intentos de login fallidos la cuenta se
+> bloquea temporalmente (`429`, `code: CUENTA_BLOQUEADA`).
 
 ## Usuarios
 
@@ -43,7 +53,7 @@
 
 | Método | Ruta | Acceso | Notas |
 |--------|------|--------|-------|
-| GET | `/ofertas` | Público | Solo activas. Filtros: `q`, `id_categoria`, `ubicacion`, `modalidad`, `tipo_contrato`, `salario_min`, `page`, `limit` |
+| GET | `/ofertas` | Público | Solo activas. Filtros: `q`, `id_categoria`, `id_empleador`, `ubicacion`, `modalidad`, `tipo_contrato`, `salario_min`, `page`, `limit` |
 | GET | `/ofertas/:id` | Público | Detalle |
 | GET | `/ofertas/mine` | Empleador/Admin | Ofertas propias (cualquier estado) |
 | POST | `/ofertas` | Empleador/Admin | `{ titulo, descripcion, ... }` |
@@ -62,6 +72,32 @@
 | DELETE | `/postulaciones/:id` | Candidato dueño/Admin | Retirar postulación |
 
 Estados de postulación: `enviada`, `en_revision`, `preseleccionado`, `rechazado`, `aceptado`.
+
+## Empleos guardados
+
+| Método | Ruta | Acceso | Notas |
+|--------|------|--------|-------|
+| GET | `/guardados` | Autenticado | Ofertas guardadas (paginado) |
+| GET | `/guardados/ids` | Autenticado | `{ ids: number[] }` para marcar estado en listados |
+| POST | `/guardados/:id` | Autenticado | Guarda la oferta `:id` (idempotente) |
+| DELETE | `/guardados/:id` | Autenticado | Quita la oferta de guardados |
+
+## Alertas de empleo
+
+| Método | Ruta | Acceso | Notas |
+|--------|------|--------|-------|
+| GET | `/alertas` | Candidato/Admin | Alertas del usuario |
+| POST | `/alertas` | Candidato/Admin | `{ palabra_clave?, id_categoria?, modalidad? }` (al menos un criterio) |
+| DELETE | `/alertas/:id` | Candidato/Admin | |
+
+Al publicarse una oferta activa, las alertas coincidentes generan notificación in‑app y correo.
+
+## Mensajes
+
+| Método | Ruta | Acceso | Notas |
+|--------|------|--------|-------|
+| GET | `/mensajes/:idPostulacion` | Candidato, empleador dueño o admin | Conversación; marca como leídos los entrantes |
+| POST | `/mensajes/:idPostulacion` | Candidato, empleador dueño o admin | `{ cuerpo }` → notifica al otro participante |
 
 ## Notificaciones
 
@@ -87,6 +123,7 @@ Estados de postulación: `enviada`, `en_revision`, `preseleccionado`, `rechazado
 |--------|------|--------|-------|
 | GET | `/admin/stats` | Admin | Métricas (usuarios por rol, ofertas, postulaciones) |
 | GET | `/admin/ofertas` | Admin | Todas las ofertas (cualquier estado), con filtros |
+| GET | `/admin/auditoria` | Admin | Registro de auditoría (paginado). Filtros: `entidad`, `accion` |
 
 ## Salud
 

@@ -5,12 +5,18 @@ import { RoleRoute } from '@/components/layout/RoleRoute';
 import { HomePage } from '@/pages/HomePage';
 import { JobsPage } from '@/pages/JobsPage';
 import { JobDetailPage } from '@/pages/JobDetailPage';
+import { CompanyPage } from '@/pages/CompanyPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
+import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
+import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { NotificationsPage } from '@/pages/NotificationsPage';
 import { ProfilePage } from '@/pages/ProfilePage';
+import { ConversationPage } from '@/pages/ConversationPage';
 import { MyApplicationsPage } from '@/pages/candidate/MyApplicationsPage';
+import { SavedJobsPage } from '@/pages/candidate/SavedJobsPage';
+import { AlertsPage } from '@/pages/candidate/AlertsPage';
 import { MyJobsPage } from '@/pages/employer/MyJobsPage';
 import { JobFormPage } from '@/pages/employer/JobFormPage';
 import { JobApplicantsPage } from '@/pages/employer/JobApplicantsPage';
@@ -27,16 +33,22 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/ofertas" element={<JobsPage />} />
         <Route path="/ofertas/:id" element={<JobDetailPage />} />
+        <Route path="/empresas/:id" element={<CompanyPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegisterPage />} />
+        <Route path="/recuperar" element={<ForgotPasswordPage />} />
+        <Route path="/restablecer" element={<ResetPasswordPage />} />
 
         {/* Requieren sesión */}
         <Route element={<ProtectedRoute />}>
           <Route path="/perfil" element={<ProfilePage />} />
           <Route path="/notificaciones" element={<NotificationsPage />} />
+          <Route path="/mensajes/:id" element={<ConversationPage />} />
 
           <Route element={<RoleRoute roles={['candidato', 'admin']} />}>
             <Route path="/candidato/postulaciones" element={<MyApplicationsPage />} />
+            <Route path="/candidato/guardados" element={<SavedJobsPage />} />
+            <Route path="/candidato/alertas" element={<AlertsPage />} />
           </Route>
 
           <Route element={<RoleRoute roles={['empleador', 'admin']} />}>

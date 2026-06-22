@@ -1,14 +1,15 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { AuthContext } from './auth-context';
 import * as authApi from '@/api/auth.api';
-import { clearToken, getToken, setToken } from '@/api/client';
+import { clearSession, getRefreshToken, getToken, setSession } from '@/api/client';
 import type { Rol, Usuario } from '@/types';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Restaura la sesión a partir del token guardado
+  // Restaura la sesión a partir del token guardado. Si el access token expiró,
+  // el interceptor de axios intentará refrescarlo de forma transparente.
   useEffect(() => {
     let active = true;
     if (!getToken()) {
@@ -18,14 +19,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     authApi
       .getMe()
       .then((u) => active && setUser(u))
-      .catch(() => clearToken())
+      .catch(() => clearSession())
       .finally(() => active && setLoading(false));
     return () => {
       active = false;
     };
   }, []);
 
-  // Reacciona a expiración de sesión detectada por el interceptor de axios
+  // Reacciona a expiración de sesión detectada por el interceptor de axios.
   useEffect(() => {
     const onLogout = () => setUser(null);
     window.addEventListener('auth:logout', onLogout);
@@ -34,7 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (email: string, contrasena: string) => {
     const res = await authApi.login(email, contrasena);
-    setToken(res.token);
+    setSession(res.accessToken, res.refreshToken);
     setUser(res.user);
     return res.user;
   }, []);
@@ -47,7 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(() => {
-    clearToken();
+    // Revoca el refresh token en el servidor (best-effort) y limpia la sesión local.
+    const refreshToken = getRefreshToken();
+    if (refreshToken) void authApi.logout(refreshToken).catch(() => undefined);
+    clearSession();
     setUser(null);
   }, []);
 
