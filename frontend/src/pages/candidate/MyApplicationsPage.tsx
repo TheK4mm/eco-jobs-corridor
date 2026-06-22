@@ -52,6 +52,11 @@ export function MyApplicationsPage() {
               </div>
               <div className="flex items-center gap-3">
                 <StatusBadge estado={p.estado} />
+                <Link to={`/mensajes/${p.id_postulacion}`}>
+                  <Button variant="outline" size="sm">
+                    Mensajes
+                  </Button>
+                </Link>
                 <Button
                   variant="outline"
                   size="sm"

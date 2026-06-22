@@ -88,7 +88,10 @@ export async function listByJob(
   return buildPaginated(rows, total, pagination);
 }
 
-export async function getById(requester: AuthPayload, id: number): Promise<Postulacion> {
+export async function getById(
+  requester: AuthPayload,
+  id: number,
+): Promise<repo.PostulacionDetalle> {
   const post = await repo.findById(id);
   if (!post) throw notFound('Postulación no encontrada');
 

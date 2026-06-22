@@ -111,6 +111,27 @@ export interface PerfilEmpleador {
   logo_url: string | null;
 }
 
+export interface Mensaje {
+  id_mensaje: number;
+  id_postulacion: number;
+  id_remitente: number;
+  remitente: string;
+  cuerpo: string;
+  leido: number | boolean;
+  fecha_envio: string;
+}
+
+export interface Conversacion {
+  postulacion: {
+    id_postulacion: number;
+    titulo?: string;
+    empresa?: string | null;
+    candidato?: string;
+    estado: EstadoPostulacion;
+  };
+  mensajes: Mensaje[];
+}
+
 export interface Paginated<T> {
   data: T[];
   pagination: { page: number; limit: number; total: number; totalPages: number };

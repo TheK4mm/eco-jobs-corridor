@@ -12,6 +12,7 @@ import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { NotificationsPage } from '@/pages/NotificationsPage';
 import { ProfilePage } from '@/pages/ProfilePage';
+import { ConversationPage } from '@/pages/ConversationPage';
 import { MyApplicationsPage } from '@/pages/candidate/MyApplicationsPage';
 import { SavedJobsPage } from '@/pages/candidate/SavedJobsPage';
 import { AlertsPage } from '@/pages/candidate/AlertsPage';
@@ -40,6 +41,7 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/perfil" element={<ProfilePage />} />
           <Route path="/notificaciones" element={<NotificationsPage />} />
+          <Route path="/mensajes/:id" element={<ConversationPage />} />
 
           <Route element={<RoleRoute roles={['candidato', 'admin']} />}>
             <Route path="/candidato/postulaciones" element={<MyApplicationsPage />} />
