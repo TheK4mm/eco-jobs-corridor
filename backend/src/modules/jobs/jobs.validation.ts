@@ -49,6 +49,7 @@ export const listJobsSchema = z.object({
   limit: z.coerce.number().int().positive().max(100).optional(),
   q: z.string().trim().max(120).optional(),
   id_categoria: z.coerce.number().int().positive().optional(),
+  id_empleador: z.coerce.number().int().positive().optional(),
   ubicacion: z.string().trim().max(120).optional(),
   modalidad: modalidad.optional(),
   tipo_contrato: tipoContrato.optional(),

@@ -6,6 +6,7 @@ export interface JobQuery {
   limit?: number;
   q?: string;
   id_categoria?: number;
+  id_empleador?: number;
   ubicacion?: string;
   modalidad?: string;
   tipo_contrato?: string;

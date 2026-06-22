@@ -6,12 +6,13 @@ import * as audit from '../audit/audit.service';
 import * as alertsService from '../alerts/alerts.service';
 import type { JobFilters } from './jobs.repository';
 
-type PublicFilters = Omit<JobFilters, 'estado' | 'id_empleador'>;
+type PublicFilters = Omit<JobFilters, 'estado'>;
 
 function parseFilters(query: Request['query']): PublicFilters {
   return {
     q: typeof query.q === 'string' ? query.q : undefined,
     id_categoria: query.id_categoria ? Number(query.id_categoria) : undefined,
+    id_empleador: query.id_empleador ? Number(query.id_empleador) : undefined,
     ubicacion: typeof query.ubicacion === 'string' ? query.ubicacion : undefined,
     modalidad: query.modalidad as JobFilters['modalidad'],
     tipo_contrato: query.tipo_contrato as JobFilters['tipo_contrato'],

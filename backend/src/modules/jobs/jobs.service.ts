@@ -14,10 +14,10 @@ async function ensureOwnerOrAdmin(requester: AuthPayload, jobId: number): Promis
   }
 }
 
-/** Listado público: solo ofertas activas. */
+/** Listado público: solo ofertas activas (puede filtrarse por empleador). */
 export async function listPublic(
   pagination: PaginationParams,
-  filters: Omit<JobFilters, 'estado' | 'id_empleador'>,
+  filters: Omit<JobFilters, 'estado'>,
 ): Promise<Paginated<Oferta>> {
   const { rows, total } = await jobsRepo.list(pagination, { ...filters, estado: 'activa' });
   return buildPaginated(rows, total, pagination);

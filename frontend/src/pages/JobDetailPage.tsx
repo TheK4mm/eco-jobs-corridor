@@ -80,7 +80,12 @@ export function JobDetailPage() {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <h1 className="text-2xl">{oferta.titulo}</h1>
-            <p className="mt-1 text-gray-500">{oferta.empresa ?? oferta.empleador}</p>
+            <Link
+              to={`/empresas/${oferta.id_empleador}`}
+              className="mt-1 inline-block text-gray-500 hover:text-brand-700 hover:underline"
+            >
+              {oferta.empresa ?? oferta.empleador}
+            </Link>
           </div>
           <Badge className={ESTADO_OFERTA_COLOR[oferta.estado]}>
             {ESTADO_OFERTA_LABEL[oferta.estado]}

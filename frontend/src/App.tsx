@@ -5,6 +5,7 @@ import { RoleRoute } from '@/components/layout/RoleRoute';
 import { HomePage } from '@/pages/HomePage';
 import { JobsPage } from '@/pages/JobsPage';
 import { JobDetailPage } from '@/pages/JobDetailPage';
+import { CompanyPage } from '@/pages/CompanyPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { ForgotPasswordPage } from '@/pages/ForgotPasswordPage';
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/ofertas" element={<JobsPage />} />
         <Route path="/ofertas/:id" element={<JobDetailPage />} />
+        <Route path="/empresas/:id" element={<CompanyPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/registro" element={<RegisterPage />} />
         <Route path="/recuperar" element={<ForgotPasswordPage />} />
