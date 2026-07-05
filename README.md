@@ -13,7 +13,6 @@ lista para producción.
 ![Hacer una postulación](docs/screenshots/postulación.png)
 ![Login de usuario](docs/screenshots/login.png)
 ![Rol de postulante](docs/screenshots/postulante.png)
-![Rol de empleador](docs/screenshots/empleador.png)
 
 ---
 
