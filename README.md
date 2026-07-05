@@ -7,6 +7,14 @@ gestionar procesos de contratación y administrar la plataforma.
 Versión **3.0** — modernización integral: segura, observable, contenedorizada y
 lista para producción.
 
+# Vista de la aplicación
+
+![Ofertas de empleo](docs/screenshots/ofertas-empleo.png)
+![Hacer una postulación](docs/screenshots/postulación.png)
+![Login de usuario](docs/screenshots/login.png)
+![Rol de postulante](docs/screenshots/postulante.png)
+![Rol de empleador](docs/screenshots/empleador.png)
+
 ---
 
 ## Novedades de la v3.0
